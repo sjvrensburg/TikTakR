@@ -1,0 +1,23 @@
+Package: TikTakR
+Type: Package
+Title: TikTak Multistart Optimisation Algorithm
+Version: 0.1.0
+Author: Stefan Janse van Rensburg
+Maintainer: Stefan Janse van Rensburg <stefanj@mandela.ac.za>
+Description: An implementation of Arnoud, Guvenen, and Kleineberg's (2019)
+    TikTak algorithm.
+License: GPL (>= 3)
+Depends:
+  R (>= 4.1.1),
+  nloptr (>= 2.0.0),
+  qrng (>= 0.0-8),
+  purrr (>= 0.3.4)
+Imports:
+  Rdpack
+RdMacros: Rdpack
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
