@@ -26,11 +26,11 @@ tiktak(
 \arguments{
 \item{eval_f}{function that returns the value of the objective function. It can also return gradient information at the same time in a list with elements 'objective' and 'gradient' (see the documentation for the \code{nloptr} package).}
 
-\item{n}{desired number of starting values}
+\item{n}{desired number of starting values. Ignored if \code{init_res} not \code{NULL}, though the user must still supply a value.}
 
 \item{lb, ub}{vector with lower bounds (\code{lb}) and upper bounds (\code{ub}) of the parameters (use -Inf or Inf for parameters without lower or upper bounds), by default there are no bounds for any of the parameters.}
 
-\item{N}{total number of candidate starting values. Must exceed \code{n}}
+\item{N}{total number of candidate starting values. Must exceed \code{n}. Ignored if \code{init_res} not \code{NULL}.}
 
 \item{eval_grad_f}{function that returns the value of the gradient of the objective function. Not all of the algorithms require a gradient.}
 
@@ -55,7 +55,7 @@ tiktak(
 \item{...}{additional parameters to pass to the objective and constraint functions.}
 }
 \value{
-A list of \code{n} results from performing local optimisation at the \code{n} candidate starting values.
+The best result from performing \code{n} local searches.
 }
 \description{
 The 'TikTak' multistart method, as described in \insertCite{arnoud2019;textual}{TikTakR}.

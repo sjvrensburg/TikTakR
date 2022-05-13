@@ -34,7 +34,7 @@ global_search <- function(i, s, visited_minimum, local_search_fun, theta_min = 0
 
     # Determine if new solution is better than previous best.
     if (visited_i$status >= 0) {
-        if (visited_i$objective < f)
+        if (visited_i$objective <= f)
             visited_minimum <- visited_i
     }
     visited_minimum

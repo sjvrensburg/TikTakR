@@ -3,9 +3,9 @@
 #' The 'TikTak' multistart method, as described in \insertCite{arnoud2019;textual}{TikTakR}.
 #'
 #' @param eval_f function that returns the value of the objective function. It can also return gradient information at the same time in a list with elements 'objective' and 'gradient' (see the documentation for the \code{nloptr} package).
-#' @param n desired number of starting values
+#' @param n desired number of starting values. Ignored if \code{init_res} not \code{NULL}, though the user must still supply a value.
 #' @param lb,ub vector with lower bounds (\code{lb}) and upper bounds (\code{ub}) of the parameters (use -Inf or Inf for parameters without lower or upper bounds), by default there are no bounds for any of the parameters.
-#' @param N total number of candidate starting values. Must exceed \code{n}
+#' @param N total number of candidate starting values. Must exceed \code{n}. Ignored if \code{init_res} not \code{NULL}.
 #' @param eval_grad_f function that returns the value of the gradient of the objective function. Not all of the algorithms require a gradient.
 #' @param eval_g_ineq function to evaluate (non-)linear inequality constraints that should hold in the solution. It can also return gradient information at the same time in a list with elements 'constraints' and 'jacobian' (see the documentation for the \code{nloptr} package).
 #' @param eval_jac_g_ineq function to evaluate the jacobian of the (non-)linear inequality constraints that should hold in the solution.
@@ -20,7 +20,7 @@
 #'
 #' @note Equality constraints pose a challenge for this implementation of the TikTak algorithm. See \code{initialise} for an explanation.
 #'
-#' @return A list of \code{n} results from performing local optimisation at the \code{n} candidate starting values.
+#' @return The best result from performing \code{n} local searches.
 #' @export
 #' @references
 #' \insertRef{arnoud2019}{TikTakR}
@@ -38,6 +38,7 @@ tiktak <- function(eval_f, n, lb, ub, N = n * 10, eval_grad_f = NULL,
     }
 
     s <- init_res$Parameters
+    n <- length(init_res$Objective)
     visited_minimum <- list(solution = s[1,], objective = init_res$Objective[1])
 
     # Create the local & global step functions
@@ -50,5 +51,5 @@ tiktak <- function(eval_f, n, lb, ub, N = n * 10, eval_grad_f = NULL,
         theta_pow)
 
     # Fold
-    purrr::accumulate(.x = 1:n, .f = global_step, .init = visited_minimum)
+    purrr::accumulate(.x = 1:n, .f = global_step, .init = visited_minimum)[[n]]
 }
