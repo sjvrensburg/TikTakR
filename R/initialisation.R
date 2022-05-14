@@ -37,7 +37,8 @@ initialise <- function(n, N, lb, ub, eval_f, test = NULL, ...) {
 
     # If a test function is provided then apply it to `s`
     if (!is.null(test)) {
-        idx <- which(drop(apply(s, 1, test)))
+        test_ <- function(x) tryCatch(expr = test(x), error = function(e) FALSE)
+        idx <- which(drop(apply(s, 1, test_)))
         s <- s[idx, ]
         if (n >= nrow(s)) {
             msg <- "Too few candidate solutions after applying `test`."
@@ -49,7 +50,14 @@ initialise <- function(n, N, lb, ub, eval_f, test = NULL, ...) {
     # Calculate the objective function for each candidate solution
     # and return the `n` best solutions.
     objective <- factory_objective(eval_f, ...)
-    f <- apply(s, 1, objective)
+    objective_ <- function(x) {
+      tryCatch(expr = objective(x), error = function(e) {
+        msg <- "Something went wrong while evaluating the objective function."
+        msg <- paste(msg, "Returning Inf...")
+        warning(msg)
+        return(Inf)
+      })}
+    f <- apply(s, 1, objective_)
 
     idx <- order(f)[1:n]
 
