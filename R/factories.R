@@ -34,7 +34,7 @@ factory_test <- function(eval_g_ineq, eval_g_eq = NULL, ...) {
     return(f)
   }
   if (!is.null(eval_g_ineq) & is.null(eval_g_eq)) {
-    f <- function(x) {
+    f <- function(x, ...) {
       ineq <- eval_g_ineq(x, ...)
       if (is.list(ineq))
         ineq <- ineq$constraints
@@ -43,7 +43,7 @@ factory_test <- function(eval_g_ineq, eval_g_eq = NULL, ...) {
     return(f)
   }
   if (is.null(eval_g_ineq) & !is.null(eval_g_eq)) {
-    f <- function(x) {
+    f <- function(x, ...) {
       eq <- eval_g_eq(x, ...)
       if (is.list(eq))
         eq <- eq$constraints
