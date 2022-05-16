@@ -1,7 +1,7 @@
 Package: TikTakR
 Type: Package
 Title: TikTak Multistart Optimisation Algorithm
-Version: 0.1.0
+Version: 0.2.0
 Author: Stefan Janse van Rensburg
 Maintainer: Stefan Janse van Rensburg <stefanj@mandela.ac.za>
 Description: An implementation of Arnoud, Guvenen, and Kleineberg's (2019)
@@ -13,7 +13,7 @@ Depends:
   qrng (>= 0.0-8),
   purrr (>= 0.3.4)
 Imports:
-  Rdpack
+  Rdpack, doParallel, foreach
 RdMacros: Rdpack
 Encoding: UTF-8
 LazyData: true
