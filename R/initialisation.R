@@ -6,6 +6,7 @@
 #' @param lb,ub lower and upper bounds on parameters
 #' @param eval_f the objective function to minimise
 #' @param test optional test function (See details)
+#' @param num_cores integer that specifies the number of cores to use
 #' @param ... additional arguments to pass to the eval_f
 #'
 #' @details This function generates a Sobol sequence of length \code{N}. These
@@ -21,37 +22,75 @@
 #' @returns A list with a matrix of \code{n} candidate points and a vector with
 #' with the value of the objective function at each point.
 #' @export
-initialise <- function(n, N, lb, ub, eval_f, test = NULL, ...) {
-    if (n >= N)
-        stop("N must exceed n.")
-    if (length(lb) != length(ub)) {
-        msg <- "Lower and upper bounds must be of equal length."
-        stop(msg)
+#'
+#' @importFrom parallel makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach %dopar%
+initialise <- function(n, N, lb, ub, eval_f, test = NULL,
+                       num.cores = NULL, ...) {
+  if (n >= N) {
+    stop("N must exceed n.")
+  }
+  if (length(lb) != length(ub)) {
+    msg <- "Lower and upper bounds must be of equal length."
+    stop(msg)
+  }
+  k <- length(lb)
+  s <- qrng::sobol(n = N, d = k, randomize = "none")
+
+  # Register a cluster.
+  if (!is.null(num.cores) && num.cores >= 2) {
+    cl <- makeCluster(2)
+    registerDoParallel(cl)
+  }
+
+  # Scale the values of `s`
+  s <- apply(s, 1, function(x) lb + x * (ub - lb))
+  s <- t(s)
+
+  # If a test function is provided then apply it to `s`
+  if (!is.null(test)) {
+    test_ <- function(x) tryCatch(expr = test(x), error = function(e) FALSE)
+    if (is.null(num.cores) || num.cores < 2) {
+      idx <- which(drop(apply(s, 1, test_)))
+    } else {
+      idx <- which(foreach(
+        i = 1:nrow(s), .combine = c, .packages = (.packages())
+      ) %dopar% {
+        test_(s[i, ])
+      })
     }
-    k <- length(lb)
-    s <- qrng::sobol(n = N, d = k, randomize = "none")
+    s <- s[idx, ]
+  }
 
-    # Scale the values of `s`
-    s <- apply(s, 1, function(x) lb + x * (ub - lb))
-    s <- t(s)
+  if (n >= nrow(s)) {
+    msg <- "Too few candidate solutions after applying `test`."
+    msg <- paste(msg, "Try increasing the value of `N`.")
+    stop(msg)
+  }
 
-    # If a test function is provided then apply it to `s`
-    if (!is.null(test)) {
-        idx <- which(drop(apply(s, 1, test)))
-        s <- s[idx, ]
-        if (n >= nrow(s)) {
-            msg <- "Too few candidate solutions after applying `test`."
-            msg <- paste(msg, "Try increasing the value of `N`.")
-            stop(msg)
-        }
+  # Calculate the objective function for each candidate solution
+  # and return the `n` best solutions.
+  objective <- factory_objective(eval_f, ...)
+  objective_ <- function(x) {
+    tryCatch(expr = objective(x), error = function(e) {
+      msg <- "Something went wrong while evaluating the objective function."
+      msg <- paste(msg, "Returning Inf...")
+      warning(msg)
+      return(Inf)
+    })
+  }
+  if (is.null(num.cores) || num.cores < 2) {
+    f <- apply(s, 1, objective_)
+  } else {
+    f <- foreach(
+      i = 1:nrow(s), .combine = c, .packages = (.packages())
+    ) %dopar% {
+      objective_(s[i, ])
     }
+    stopCluster(cl)
+  }
+  idx <- order(f)[1:n]
 
-    # Calculate the objective function for each candidate solution
-    # and return the `n` best solutions.
-    objective <- factory_objective(eval_f, ...)
-    f <- apply(s, 1, objective)
-
-    idx <- order(f)[1:n]
-
-    return(list(Parameters = s[idx, ], Objective = f[idx]))
+  return(list(Parameters = s[idx, ], Objective = f[idx]))
 }

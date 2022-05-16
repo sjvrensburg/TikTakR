@@ -4,7 +4,7 @@
 \alias{initialise}
 \title{Initialise The TikTak Algorithm}
 \usage{
-initialise(n, N, lb, ub, eval_f, test = NULL, ...)
+initialise(n, N, lb, ub, eval_f, test = NULL, num.cores = NULL, ...)
 }
 \arguments{
 \item{n}{desired number of candidate points}
@@ -18,6 +18,8 @@ initialise(n, N, lb, ub, eval_f, test = NULL, ...)
 \item{test}{optional test function (See details)}
 
 \item{...}{additional arguments to pass to the eval_f}
+
+\item{num_cores}{integer that specifies the number of cores to use}
 }
 \value{
 A list with a matrix of \code{n} candidate points and a vector with

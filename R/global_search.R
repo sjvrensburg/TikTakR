@@ -19,23 +19,24 @@
 #' @return The best result from local searches.
 #' @export
 global_search <- function(i, s, visited_minimum, local_search_fun, theta_min = 0.1,
-    theta_max = 0.995, theta_pow = 0.5) {
-    # Prep
-    n <- nrow(s)
-    f <- visited_minimum$objective
-    p <- visited_minimum$solution
+                          theta_max = 0.995, theta_pow = 0.5) {
+  # Prep
+  n <- nrow(s)
+  f <- visited_minimum$objective
+  p <- visited_minimum$solution
 
-    # Determine new starting value for local search.
-    theta <- schedule(i, n, theta_min, theta_max, theta_pow)
-    s_i <- (1 - theta) * s[i, ] + theta * p
+  # Determine new starting value for local search.
+  theta <- schedule(i, n, theta_min, theta_max, theta_pow)
+  s_i <- (1 - theta) * s[i, ] + theta * p
 
-    # Perform local search
-    visited_i <- local_search_fun(s_i)
+  # Perform local search
+  visited_i <- local_search_fun(s_i)
 
-    # Determine if new solution is better than previous best.
-    if (visited_i$status >= 0) {
-        if (visited_i$objective <= f)
-            visited_minimum <- visited_i
+  # Determine if new solution is better than previous best.
+  if (visited_i$status >= 0) {
+    if (visited_i$objective <= f) {
+      visited_minimum <- visited_i
     }
-    visited_minimum
+  }
+  visited_minimum
 }
