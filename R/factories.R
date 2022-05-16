@@ -9,8 +9,9 @@ factory_objective <- function(eval_f, ...) {
   }
   f <- function(x) {
     objective <- obj_fun(x)
-    if (is.list(objective))
+    if (is.list(objective)) {
       objective <- objective$objective
+    }
     return(objective)
   }
   return(f)
@@ -18,16 +19,19 @@ factory_objective <- function(eval_f, ...) {
 
 # Create test function from eval_g_ineq and eval_g_eq
 factory_test <- function(eval_g_ineq, eval_g_eq = NULL, ...) {
-  if (is.null(eval_g_ineq) & is.null(eval_g_eq))
+  if (is.null(eval_g_ineq) & is.null(eval_g_eq)) {
     return(NULL)
+  }
   if (!is.null(eval_g_ineq) & !is.null(eval_g_eq)) {
     f <- function(x, ...) {
       ineq <- eval_g_ineq(x, ...)
-      if (is.list(ineq))
+      if (is.list(ineq)) {
         ineq <- ineq$constraints
+      }
       eq <- eval_g_eq(x, ...)
-      if (is.list(eq))
+      if (is.list(eq)) {
         eq <- eq$constraints
+      }
       res <- all(ineq <= 0) & isTRUE(all.equal(eq, rep(0, length(eq))))
       return(res)
     }
@@ -36,8 +40,9 @@ factory_test <- function(eval_g_ineq, eval_g_eq = NULL, ...) {
   if (!is.null(eval_g_ineq) & is.null(eval_g_eq)) {
     f <- function(x, ...) {
       ineq <- eval_g_ineq(x, ...)
-      if (is.list(ineq))
+      if (is.list(ineq)) {
         ineq <- ineq$constraints
+      }
       return(all(ineq <= 0))
     }
     return(f)
@@ -45,8 +50,9 @@ factory_test <- function(eval_g_ineq, eval_g_eq = NULL, ...) {
   if (is.null(eval_g_ineq) & !is.null(eval_g_eq)) {
     f <- function(x, ...) {
       eq <- eval_g_eq(x, ...)
-      if (is.list(eq))
+      if (is.list(eq)) {
         eq <- eq$constraints
+      }
       res <- isTRUE(all.equal(eq, rep(0, length(eq))))
       return(res)
     }
@@ -68,8 +74,10 @@ factory_local <- function(...) {
 factory_global <- function(s, local_search, theta_min = 0.1, theta_max = 0.995,
                            theta_pow = 0.5, ...) {
   f <- function(visited_minimum, i) {
-    global_search(i, s, visited_minimum, local_search, theta_min,
-                  theta_max, theta_pow, ...)
+    global_search(
+      i, s, visited_minimum, local_search, theta_min,
+      theta_max, theta_pow, ...
+    )
   }
   return(f)
 }
