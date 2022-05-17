@@ -15,7 +15,7 @@
 #' @param theta_min minimum weight See \insertCite{arnoud2019;textual}{TikTakR}.
 #' @param theta_max maximum weight. See \insertCite{arnoud2019;textual}{TikTakR}.
 #' @param theta_pow parameter that controls rate of decay in weight. See \insertCite{arnoud2019;textual}{TikTakR}.
-#' @param num_cores integer that specifies the number of cores to use during \code{initialise} step. Useful is \code{N} is large.
+#' @param num.cores integer that specifies the number of cores to use during \code{initialise} step. Useful is \code{N} is large.
 #' @param init_res an object produced by \code{initialise}. If \code{NULL} (default) then \code{titak} will run \code{initialise}.
 #' @param ... additional parameters to pass to the objective and constraint functions.
 #'
@@ -28,15 +28,16 @@
 #' @importFrom Rdpack reprompt
 tiktak <- function(eval_f, n, lb, ub, N = n * 10, eval_grad_f = NULL,
                    eval_g_ineq = NULL, eval_jac_g_ineq = NULL, eval_g_eq = NULL, eval_jac_g_eq = NULL,
-                   opts = list(), theta_min = 0.1, theta_max = 0.995, theta_pow = 0.5, num_cores = NULL, init_res = NULL, ...) {
+                   opts = list(), theta_min = 0.1, theta_max = 0.995, theta_pow = 0.5, num.cores = NULL, init_res = NULL, ...) {
   if (is.null(init_res)) {
     # Create the test function
     test <- factory_test(eval_g_ineq, eval_g_eq, ...)
 
     # Initial parameters
-    init_res <- initialise(n, N, lb, ub, eval_f, test, num_cores = num_cores, ...)
+    init_res <- initialise(n = n, N = N, lb = lb, ub = ub,
+                           eval_f = eval_f, test = test,
+                           num.cores = num.cores, ...)
   }
-
   s <- init_res$Parameters
   n <- length(init_res$Objective)
   visited_minimum <- list(solution = s[1, ], objective = init_res$Objective[1])
