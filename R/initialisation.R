@@ -6,7 +6,7 @@
 #' @param lb,ub lower and upper bounds on parameters
 #' @param eval_f the objective function to minimise
 #' @param test optional test function (See details)
-#' @param num_cores integer that specifies the number of cores to use
+#' @param num.cores integer that specifies the number of cores to use
 #' @param ... additional arguments to pass to the eval_f
 #'
 #' @details This function generates a Sobol sequence of length \code{N}. These
@@ -35,12 +35,13 @@ initialise <- function(n, N, lb, ub, eval_f, test = NULL,
     msg <- "Lower and upper bounds must be of equal length."
     stop(msg)
   }
+  if (is.null(num.cores)) num.cores <- 0
   k <- length(lb)
   s <- qrng::sobol(n = N, d = k, randomize = "none")
 
   # Register a cluster.
-  if (!is.null(num.cores) && num.cores >= 2) {
-    cl <- makeCluster(2)
+  if (num.cores >= 2) {
+    cl <- makeCluster(num.cores)
     registerDoParallel(cl)
   }
 
@@ -51,13 +52,14 @@ initialise <- function(n, N, lb, ub, eval_f, test = NULL,
   # If a test function is provided then apply it to `s`
   if (!is.null(test)) {
     test_ <- function(x) tryCatch(expr = test(x), error = function(e) FALSE)
-    if (is.null(num.cores) || num.cores < 2) {
+    if (num.cores < 2) {
       idx <- which(drop(apply(s, 1, test_)))
     } else {
+      chunks <- chunk2(1:nrow(s), num.cores)
       idx <- which(foreach(
-        i = 1:nrow(s), .combine = c, .packages = (.packages())
+        i = iterators::iter(chunks), .combine = c, .packages = (.packages())
       ) %dopar% {
-        test_(s[i, ])
+        drop(apply(s[i, ], 1, test_))
       })
     }
     s <- s[idx, ]
@@ -74,19 +76,20 @@ initialise <- function(n, N, lb, ub, eval_f, test = NULL,
   objective <- factory_objective(eval_f, ...)
   objective_ <- function(x) {
     tryCatch(expr = objective(x), error = function(e) {
-      msg <- "Something went wrong while evaluating the objective function."
-      msg <- paste(msg, "Returning Inf...")
-      warning(msg)
+      # msg <- "Something went wrong while evaluating the objective function."
+      # msg <- paste(msg, "Returning Inf...")
+      # warning(msg)
       return(Inf)
     })
   }
-  if (is.null(num.cores) || num.cores < 2) {
+  if (num.cores < 2) {
     f <- apply(s, 1, objective_)
   } else {
+    chunks <- chunk2(1:nrow(s), num.cores)
     f <- foreach(
-      i = 1:nrow(s), .combine = c, .packages = (.packages())
+      i = iterators::iter(chunks), .combine = c, .packages = (.packages())
     ) %dopar% {
-      objective_(s[i, ])
+      apply(s[i, ], 1, objective_)
     }
     stopCluster(cl)
   }
