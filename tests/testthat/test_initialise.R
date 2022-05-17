@@ -20,7 +20,7 @@ test_that("initialise works given different types of objective functions", {
 
   # Test if they all produce the same results.
   n <- 5
-  N <- 100
+  N <- 1000
   lb <- rep(-2, 2)
   ub <- rep(2, 2)
   res_1 <- initialise(n, N, lb, ub, f_1)

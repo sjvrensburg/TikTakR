@@ -37,10 +37,10 @@ test_that("tiktak function results appropriate answer for NLOPT example problem"
   solution.opt <- c(1 / 3, 8 / 27)
 
   # Parameters and options for titak
-  n <- 10
+  n <- 5
   lb <- c(0, 0)
   ub <- c(1, 1)
-  N <- 1000
+  N <- 10000
   opts <- list("xtol_rel" = 1e-8, "algorithm" = "NLOPT_LD_SLSQP")
 
   # Optimise using separate objective and gradient functions
@@ -95,17 +95,17 @@ test_that("tiktak works for optimising the Rastrigin function.", {
   }
 
   # Setup the optimisation... we want to have many short runs of the local search.
-  n <- 10
-  N <- 5000
+  n <- 5
+  N <- 10000
   lb <- rep(-5.12, 2)
   ub <- rep(5.12, 2)
-  max_time <- 0.25 # a quarter of a second.
+  max_time <- 0.1
   xtol_rel <- 1e-6
-  opts_sbplx <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LN_SBPLX", "print_level" = 3)
-  opts_lbfgs <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LD_LBFGS", "print_level" = 3)
+  opts_sbplx <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LN_SBPLX", "print_level" = 0)
+  opts_lbfgs <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LD_LBFGS", "print_level" = 0)
 
-  res_sbplx <- tiktak(eval_f = rastrigin_fun, n = n, lb = lb, ub = ub, N = N, opts = opts_sbplx, num_cores = 4, A = 10)
-  res_lbfgs <- tiktak(eval_f = rastrigin_fun, eval_grad_f = rastrigin_grad, n = n, lb = lb, ub = ub, N = N, opts = opts_lbfgs, num_cores = 4, A = 10)
+  res_sbplx <- tiktak(eval_f = rastrigin_fun, n = n, lb = lb, ub = ub, N = N, opts = opts_sbplx, num.cores = 4, A = 10)
+  res_lbfgs <- tiktak(eval_f = rastrigin_fun, eval_grad_f = rastrigin_grad, n = n, lb = lb, ub = ub, N = N, opts = opts_lbfgs, num.cores = 4, A = 10)
 
   expect_equal(res_sbplx$solution, c(0, 0), label = "TikTak + Sbplx")
   expect_equal(res_lbfgs$solution, c(0, 0), label = "TikTak + L-BFGS")
@@ -124,14 +124,14 @@ test_that("tiktak works for optimising the Rastrigin function when the starting 
   }
 
   # Setup the optimisation... we want to have many short runs of the local search.
-  n <- 50
-  N <- 1000
+  n <- 5
+  N <- 10000
   lb <- rep(-5.12, 2)
   ub <- rep(5.12, 2)
-  max_time <- 2.4
+  max_time <- 1
   xtol_rel <- 1e-8
-  opts_sbplx <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LN_SBPLX", "print_level" = 3)
-  opts_lbfgs <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LD_LBFGS", "print_level" = 3)
+  opts_sbplx <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LN_SBPLX", "print_level" = 0)
+  opts_lbfgs <- list("maxtime" = max_time, "xtol_rel" = xtol_rel, "algorithm" = "NLOPT_LD_LBFGS", "print_level" = 0)
 
   init_res <- initialise(n + 1, N, lb, ub, rastrigin_fun, A = 10)
   # Remove the optimal solution...
