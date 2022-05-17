@@ -19,7 +19,7 @@ tiktak(
   theta_min = 0.1,
   theta_max = 0.995,
   theta_pow = 0.5,
-  num_cores = NULL,
+  num.cores = NULL,
   init_res = NULL,
   ...
 )
@@ -51,7 +51,7 @@ tiktak(
 
 \item{theta_pow}{parameter that controls rate of decay in weight. See \insertCite{arnoud2019;textual}{TikTakR}.}
 
-\item{num_cores}{integer that specifies the number of cores to use during \code{initialise} step. Useful is \code{N} is large.}
+\item{num.cores}{integer that specifies the number of cores to use during \code{initialise} step. Useful is \code{N} is large.}
 
 \item{init_res}{an object produced by \code{initialise}. If \code{NULL} (default) then \code{titak} will run \code{initialise}.}
 

@@ -17,9 +17,9 @@ initialise(n, N, lb, ub, eval_f, test = NULL, num.cores = NULL, ...)
 
 \item{test}{optional test function (See details)}
 
-\item{...}{additional arguments to pass to the eval_f}
+\item{num.cores}{integer that specifies the number of cores to use}
 
-\item{num_cores}{integer that specifies the number of cores to use}
+\item{...}{additional arguments to pass to the eval_f}
 }
 \value{
 A list with a matrix of \code{n} candidate points and a vector with
